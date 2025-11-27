@@ -1,0 +1,51 @@
+# Tên của quy trình tự động
+name: Deploy to GitHub Pages
+
+# Quy trình này sẽ chạy mỗi khi bạn đẩy code lên nhánh "main"
+on:
+  push:
+    branches: [ "main" ]
+
+# Cho phép quy trình này có quyền ghi để deploy
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Các công việc cần làm
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Bước 1: Tải mã nguồn về
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Bước 2: Cài đặt môi trường Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Bước 3: Cài đặt các "phụ tùng"
+      - name: Install dependencies
+        run: npm install
+
+      # Bước 4: "Lắp ráp" ứng dụng (tạo ra thư mục dist)
+      - name: Build
+        run: npm run build
+
+      # Bước 5: Cấu hình cho GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Bước 6: Tải sản phẩm đã lắp ráp lên để deploy
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      # Bước 7: Deploy!
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
